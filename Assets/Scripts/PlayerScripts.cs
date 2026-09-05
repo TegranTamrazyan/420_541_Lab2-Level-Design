@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private bool jumpRequested;
 
+    private float xRotation = 0f;
+    private float yRotation = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -24,9 +27,15 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        // Yaw: turn the whole player left/right
-        transform.Rotate(0f, mouseX, 0f, Space.World);
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * 8;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * 8;
+
+        yRotation += mouseX;
+        xRotation -= mouseY;
+
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
 
         // Ground Check using a Raycast downwards
         isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundMask);
@@ -35,6 +44,18 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             jumpRequested = true;
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            moveSpeed = 15f;
+            Camera.main.GetComponent<Camera>().fieldOfView = 70f; 
+
+        }
+        else
+        {
+            moveSpeed = 6f;
+            Camera.main.GetComponent<Camera>().fieldOfView = 60f;
         }
     }
 
